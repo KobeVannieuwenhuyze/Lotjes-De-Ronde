@@ -30,7 +30,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
     if (ignoreNextSnapshot) { ignoreNextSnapshot = false; return; }
     const data = snap.val() || {};
     renners = Object.entries(data)
-      .map(([id, r]) => ({ id, naam: r.naam || '', positie: r.positie ?? '' }))
+      .map(([id, r]) => ({ id, naam: r.naam || '', punten: r.punten ?? 0 }))
       .sort((a, b) => a.naam.localeCompare(b.naam));
     renderTable();
     renderRang();
@@ -67,16 +67,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
   }
  
   // ── Punten berekening ──
-  function ptnFromPos(pos) {
-    const p = parseInt(pos);
-    if (!p || p < 1 || p > 15) return 0;
-    return 80 - p * 5;
-  }
- 
-  // Zet "hh:mm:ss" om naar seconden
+  // Zet "hh:mm" of "hh:mm:ss" om naar seconden
   function tijdNaarSec(t) {
-    if (!t || !/^\d{2}:\d{2}:\d{2}$/.test(t)) return null;
-    const [h, m, s] = t.split(':').map(Number);
+    if (!t) return null;
+    const parts = t.split(':').map(Number);
+    if (parts.length < 2 || parts.some(isNaN)) return null;
+    const [h, m, s = 0] = parts;
     return h * 3600 + m * 60 + s;
   }
  
@@ -85,7 +81,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
     // Bouw puntentabel renner -> punten
     const rennerPtn = {};
     renners.forEach(r => {
-      if (r.naam) rennerPtn[r.naam] = ptnFromPos(r.positie);
+      if (r.naam) rennerPtn[r.naam] = r.punten ?? 0;
     });
  
     const aankomstSec = tijdNaarSec(aankomsttijd);
@@ -159,23 +155,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
  
   function makeRow(r, num) {
     const tr = document.createElement('tr');
-    const p   = parseInt(r.positie);
-    const ptn = ptnFromPos(p);
- 
-    let badgeClass = 'pos-badge';
-    if (p === 1) badgeClass += ' p1';
-    else if (p === 2) badgeClass += ' p2';
-    else if (p === 3) badgeClass += ' p3';
-    else if (p >= 4 && p <= 15) badgeClass += ' top';
- 
-    const positieCell = r.positie !== ''
-      ? `<span class="${badgeClass} clickable-badge" title="Klik om aan te passen"
-             data-id="${r.id}" data-col="positie-badge">
-           ${p} <small>(${ptn}ptn)</small>
-         </span>`
-      : `<input class="pos-input" type="number" min="1" max="200"
-             value="" placeholder="pos"
-             data-id="${r.id}" data-col="positie">`;
  
     tr.innerHTML = `
       <td class="row-num">${num}</td>
@@ -184,7 +163,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
           value="${esc(r.naam)}" placeholder="Naam renner"
           data-id="${r.id}" data-col="naam">
       </td>
-      <td class="pos-cell">${positieCell}</td>
+      <td class="pos-cell">
+        <input class="pos-input" type="number" min="0" max="999"
+          value="${r.punten ?? 0}"
+          data-id="${r.id}" data-col="punten">
+      </td>
       <td><button class="btn-del" data-id="${r.id}" title="Verwijderen">✕</button></td>
     `;
  
@@ -192,33 +175,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
     naamInput.addEventListener('change', () => onNaamChange(r.id, naamInput.value.trim()));
     naamInput.addEventListener('blur',   () => onNaamChange(r.id, naamInput.value.trim()));
  
-    const badge = tr.querySelector('.clickable-badge');
-    if (badge) {
-      badge.addEventListener('click', () => {
-        const input = document.createElement('input');
-        input.className = 'pos-input';
-        input.type = 'number'; input.min = 1; input.max = 200;
-        input.value = p;
-        input.dataset.id = r.id; input.dataset.col = 'positie';
-        badge.replaceWith(input);
-        input.focus(); input.select();
- 
-        // Forceer opslaan — zet r.positie tijdelijk op '' zodat de check altijd doorgaat
-        const slaOp = () => {
-          const oudePositie = r.positie;
-          r.positie = ''; // reset zodat de gelijkheidscheck niet blokkeert
-          onPositieChange(r.id, input.value).catch(() => { r.positie = oudePositie; });
-        };
-        input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } });
-        input.addEventListener('blur', slaOp);
-      });
-    }
- 
-    const posInput = tr.querySelector('[data-col="positie"]');
-    if (posInput) {
-      posInput.addEventListener('change', () => onPositieChange(r.id, posInput.value));
-      posInput.addEventListener('blur',   () => onPositieChange(r.id, posInput.value));
-    }
+    const ptnInput = tr.querySelector('[data-col="punten"]');
+    ptnInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); ptnInput.blur(); } });
+    ptnInput.addEventListener('change', () => onPuntenChange(r.id, ptnInput.value));
+    ptnInput.addEventListener('blur',   () => onPuntenChange(r.id, ptnInput.value));
  
     tr.querySelector('.btn-del').addEventListener('click', () => deleteRenner(r.id));
     return tr;
@@ -234,8 +194,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
           placeholder="Nieuwe renner toevoegen…" data-col="naam-new">
       </td>
       <td class="pos-cell">
-        <input class="pos-input" type="number" min="1" max="200"
-          placeholder="—" disabled data-col="positie-new">
+        <input class="pos-input" type="number" min="0" max="999"
+          value="0" disabled data-col="punten-new">
       </td>
       <td></td>
     `;
@@ -254,8 +214,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
     ignoreNextSnapshot = true;
     try {
       const newId = 'r_' + Date.now();
-      await set(ref(db, `renners/${newId}`), { naam, positie: '' });
-      renners.push({ id: newId, naam, positie: '' });
+      await set(ref(db, `renners/${newId}`), { naam, punten: 0 });
+      renners.push({ id: newId, naam, punten: 0 });
       renners.sort((a, b) => a.naam.localeCompare(b.naam));
       setStatus('✓ Opgeslagen', 'saved');
       renderTable(); renderRang();
@@ -277,17 +237,16 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
     } catch(e) { setStatus('⚠ Fout bij opslaan', 'error'); ignoreNextSnapshot = false; }
   }
  
-  async function onPositieChange(id, val) {
+  async function onPuntenChange(id, val) {
     const r = renners.find(x => x.id === id);
     if (!r) return;
-    const positie = val === '' ? '' : parseInt(val);
-    // Sla altijd op — vergelijk als string om type mismatch te vermijden
-    if (String(r.positie) === String(positie)) return;
+    const punten = val === '' ? 0 : parseInt(val);
+    if (String(r.punten) === String(punten)) return;
     setStatus('Opslaan…', 'saving');
     ignoreNextSnapshot = true;
     try {
-      await update(ref(db, `renners/${id}`), { positie });
-      r.positie = positie;
+      await update(ref(db, `renners/${id}`), { punten });
+      r.punten = punten;
       setStatus('✓ Opgeslagen', 'saved');
       renderTable(); renderRang();
     } catch(e) { setStatus('⚠ Fout bij opslaan', 'error'); ignoreNextSnapshot = false; }
