@@ -232,6 +232,80 @@
       padding-left: .75rem;
     }
     tbody tr.empty-row td.row-num { color: transparent; }
+
+        /* positie badge */
+    td.pos-cell { text-align: center; }
+ 
+    .pos-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 2rem; height: 2rem; border-radius: 4px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem; font-weight: 800;
+      background: var(--border); color: var(--muted);
+    }
+    .pos-badge.p1  { background: #f5c800; color: #0f1923; }
+    .pos-badge.p2  { background: #c0c0c0; color: #0f1923; }
+    .pos-badge.p3  { background: #cd7f32; color: #0f1923; }
+    .pos-badge.top { background: rgba(61,214,140,.15); color: var(--green); }
+ 
+    /* inline inputs */
+    .cell-input {
+      width: 100%;
+      background: transparent;
+      border: 1.5px solid transparent;
+      border-radius: 4px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .92rem;
+      padding: .42rem .6rem;
+      outline: none;
+      transition: border-color .15s, background .15s;
+    }
+    .cell-input:hover { border-color: var(--border); }
+    .cell-input:focus { border-color: var(--accent); background: rgba(245,200,0,.04); }
+    .cell-input::placeholder { color: var(--muted); font-style: italic; }
+ 
+    .pos-input {
+      width: 70px;
+      background: transparent;
+      border: 1.5px solid transparent;
+      border-radius: 4px;
+      color: var(--text);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      padding: .38rem .5rem;
+      text-align: center;
+      outline: none;
+      transition: border-color .15s, background .15s;
+    }
+    .pos-input:hover:not(:disabled) { border-color: var(--border); }
+    .pos-input:focus { border-color: var(--accent); background: rgba(245,200,0,.04); }
+    .pos-input:disabled {
+      color: var(--muted); cursor: not-allowed; opacity: .5;
+    }
+    .pos-input::placeholder { color: var(--muted); font-style: italic; font-size: .8rem; }
+ 
+    /* delete btn */
+    .btn-del {
+      background: none; border: none;
+      color: var(--muted); font-size: .85rem;
+      cursor: pointer; padding: .3rem .5rem;
+      border-radius: 4px;
+      transition: color .15s, background .15s;
+      line-height: 1;
+    }
+    .btn-del:hover { color: var(--red); background: rgba(224,92,92,.1); }
+ 
+    /* ── SAVE STATUS ── */
+    .save-status {
+      font-size: .72rem; color: var(--muted);
+      margin-top: .6rem; text-align: right;
+      min-height: 1.2em;
+      transition: color .2s;
+    }
+    .save-status.saving { color: var(--accent); }
+    .save-status.saved  { color: var(--green); }
+    .save-status.error  { color: var(--red); }
  
     /* ── FOOTER ── */
     footer {
