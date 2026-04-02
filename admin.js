@@ -31,7 +31,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
     const data = snap.val() || {};
     renners = Object.entries(data)
       .map(([id, r]) => ({ id, naam: r.naam || '', punten: r.punten ?? 0 }))
-      .sort((a, b) => a.naam.localeCompare(b.naam));
+      .sort((a, b) => b.punten - a.punten || a.naam.localeCompare(b.naam));
     renderTable();
     renderRang();
   });
@@ -200,8 +200,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
       <td></td>
     `;
     const naamInput = tr.querySelector('[data-col="naam-new"]');
-    naamInput.addEventListener('change', () => { if (naamInput.value.trim()) addRenner(naamInput.value.trim()); });
-    naamInput.addEventListener('blur',   () => { if (naamInput.value.trim()) addRenner(naamInput.value.trim()); });
+    let bezig = false;
+    const probeerToevoegen = () => {
+      const naam = naamInput.value.trim();
+      if (!naam || bezig) return;
+      bezig = true;
+      addRenner(naam);
+    };
+    naamInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); probeerToevoegen(); } });
+    naamInput.addEventListener('blur', probeerToevoegen);
     return tr;
   }
  
@@ -216,7 +223,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
       const newId = 'r_' + Date.now();
       await set(ref(db, `renners/${newId}`), { naam, punten: 0 });
       renners.push({ id: newId, naam, punten: 0 });
-      renners.sort((a, b) => a.naam.localeCompare(b.naam));
+      renners.sort((a, b) => b.punten - a.punten || a.naam.localeCompare(b.naam));
       setStatus('✓ Opgeslagen', 'saved');
       renderTable(); renderRang();
     } catch(e) { setStatus('⚠ Fout bij opslaan', 'error'); ignoreNextSnapshot = false; }
@@ -231,7 +238,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
     try {
       await update(ref(db, `renners/${id}`), { naam });
       r.naam = naam;
-      renners.sort((a, b) => a.naam.localeCompare(b.naam));
+      renners.sort((a, b) => b.punten - a.punten || a.naam.localeCompare(b.naam));
       setStatus('✓ Opgeslagen', 'saved');
       renderTable(); renderRang();
     } catch(e) { setStatus('⚠ Fout bij opslaan', 'error'); ignoreNextSnapshot = false; }
