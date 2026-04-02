@@ -4,7 +4,7 @@
     <head>
         <meta charset="utf-8" />
         <title>Lotjes de Ronde</title>
-        <link rel="stylesheet" href="index.css" />
+        <link rel="stylesheet" href="admin.css" />
         <script src="admin.js" type="module"></script>
     </head>
     <body>
@@ -13,8 +13,7 @@
         <div class="sec-label">Schiftingsvraag — aankomsttijd winnaar</div>
         <div class="tijd-card">
             <div class="tijd-label">⏱ Aankomsttijd</div>
-            <input class="tijd-input" type="text" id="aankomsttijd"
-            placeholder="hh:mm:ss" maxlength="8" inputmode="numeric">
+            <input class="tijd-input" type="time" id="aankomsttijd" step="1" placeholder="hh:mm:ss">
             <span class="tijd-saved" id="tijd-saved">✓ Opgeslagen</span>
         </div>
         
@@ -26,7 +25,7 @@
                 <tr>
                 <th>#</th>
                 <th>Naam renner</th>
-                <th style="text-align:center">Punten</th>
+                <th style="text-align:center">Positie / Punten</th>
                 <th></th>
                 </tr>
             </thead>
@@ -35,24 +34,26 @@
         </div>
         <div class="save-status" id="save-status"></div>
         
-        <!-- ── WINNAARS ── -->
-        <div class="sec-label">Winnaars</div>
+        <!-- ── RANGSCHIKKING ── -->
+        <div class="sec-label">Rangschikking deelnemers</div>
         <div class="rang-wrap">
             <table>
             <thead>
                 <tr>
                 <th style="width:2.5rem;text-align:center">#</th>
-                <th>Deelnemer</th>
-                <th style="text-align:right">Score / Schifting</th>
+                <th>Naam</th>
+                <th>GSM</th>
+                <th style="text-align:center">Score</th>
+                <th style="text-align:center">Schiftingstijd</th>
                 </tr>
             </thead>
             <tbody id="rang-body">
-                <tr><td colspan="3" class="geen-data">Nog geen uitslag beschikbaar.</td></tr>
+                <tr><td colspan="5" class="geen-data">Nog geen uitslag beschikbaar.</td></tr>
             </tbody>
             </table>
         </div>
-        </main>
         
+        </main>
         <footer>
         <p>© 2026 Kobe Vannieuwenhuyze</p>
         </footer>

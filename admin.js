@@ -51,15 +51,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
   // ── Aankomsttijd input ──
   const tijdEl = document.getElementById('aankomsttijd');
  
-  tijdEl.addEventListener('input', e => {
-    let digits = e.target.value.replace(/\D/g, '').slice(0, 6);
-    let fmt = '';
-    if (digits.length > 0) fmt = digits.slice(0, 2);
-    if (digits.length > 2) fmt += ':' + digits.slice(2, 4);
-    if (digits.length > 4) fmt += ':' + digits.slice(4, 6);
-    e.target.value = fmt;
-  });
- 
   tijdEl.addEventListener('change', saveTijd);
   tijdEl.addEventListener('blur',   saveTijd);
  
@@ -127,13 +118,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
     const gesorteerd = berekenRang();
  
     if (!gesorteerd.length) {
-      tbody.innerHTML = '<tr><td colspan="3" class="geen-data">Nog geen inzendingen.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="geen-data">Nog geen inzendingen.</td></tr>';
       return;
     }
- 
-    // Bouw set van renners die in top 15 staan (voor highlight)
-    const rennerPtn = {};
-    renners.forEach(r => { if (r.naam) rennerPtn[r.naam] = ptnFromPos(r.positie); });
  
     tbody.innerHTML = gesorteerd.map((d, i) => {
       const rang = i + 1;
@@ -142,27 +129,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
       else if (rang === 2) posClass = 'r2';
       else if (rang === 3) posClass = 'r3';
  
-      const rennerTags = d.gekozen.map(naam => {
-        const ptn = rennerPtn[naam] ?? 0;
-        const hit = ptn > 0;
-        return `<span class="rang-renner-tag${hit ? ' hit' : ''}">${naam}${hit ? ' +'+ptn : ''}</span>`;
-      }).join('');
- 
-      const diffTxt = d.diff !== null
-        ? (d.diff === 0 ? '± 0s' : `± ${d.diff}s van ${aankomsttijd}`)
-        : (d.tijd ? `🕐 ${d.tijd}` : '—');
+      const schifting = d.tijd ? esc(d.tijd) : '—';
  
       return `<tr class="rang-row">
         <td class="rang-pos ${posClass}">${rang}</td>
-        <td>
-          <div class="rang-naam">${esc(d.naam)}</div>
-          <div class="rang-gsm">${esc(d.gsm || '')}</div>
-          <div class="rang-renners">${rennerTags}</div>
-        </td>
-        <td>
-          <div class="rang-score">${d.score} ptn</div>
-          <div class="rang-schifting">${diffTxt}</div>
-        </td>
+        <td class="rang-naam">${esc(d.naam)}</td>
+        <td class="rang-gsm">${esc(d.gsm || '—')}</td>
+        <td class="rang-score">${d.score} ptn</td>
+        <td class="rang-schifting">${schifting}</td>
       </tr>`;
     }).join('');
   }
@@ -228,8 +202,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
         input.dataset.id = r.id; input.dataset.col = 'positie';
         badge.replaceWith(input);
         input.focus(); input.select();
-        input.addEventListener('change', () => onPositieChange(r.id, input.value));
-        input.addEventListener('blur',   () => onPositieChange(r.id, input.value));
+ 
+        // Forceer opslaan — zet r.positie tijdelijk op '' zodat de check altijd doorgaat
+        const slaOp = () => {
+          const oudePositie = r.positie;
+          r.positie = ''; // reset zodat de gelijkheidscheck niet blokkeert
+          onPositieChange(r.id, input.value).catch(() => { r.positie = oudePositie; });
+        };
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } });
+        input.addEventListener('blur', slaOp);
       });
     }
  
@@ -298,8 +279,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
  
   async function onPositieChange(id, val) {
     const r = renners.find(x => x.id === id);
+    if (!r) return;
     const positie = val === '' ? '' : parseInt(val);
-    if (!r || r.positie === positie) return;
+    // Sla altijd op — vergelijk als string om type mismatch te vermijden
+    if (String(r.positie) === String(positie)) return;
     setStatus('Opslaan…', 'saving');
     ignoreNextSnapshot = true;
     try {
