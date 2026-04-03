@@ -77,7 +77,11 @@ import { getDatabase, ref, push, onValue, get } from "https://www.gstatic.com/fi
         let naam;
         if (zoek) {
           const re = new RegExp(`(${zoek.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
-          naam = esc(r.naam).replace(re, '<span class="ac-match">$1</span>');
+          naam = r.naam.replace(re, '|||$1|||').split('|||').map((seg, i) =>
+            i % 2 === 1
+              ? `<span class="ac-match">${esc(seg)}</span>`
+              : esc(seg)
+          ).join('');
         } else {
           naam = esc(d.naam);
         }
