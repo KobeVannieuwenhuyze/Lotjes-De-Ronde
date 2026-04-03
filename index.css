@@ -140,7 +140,6 @@
       border-bottom: 1px solid var(--border);
       transition: background .1s;
       display: flex; align-items: center; justify-content: space-between;
-      white-space: nowrap;
     }
     .ac-item:last-child { border-bottom: none; }
     .ac-item:hover, .ac-item.active { background: rgba(245,200,0,.08); }
