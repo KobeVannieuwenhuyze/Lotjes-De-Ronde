@@ -98,6 +98,9 @@
       transition: border-color .15s;
       width: 160px; text-align: center;
     }
+    .tijd-input::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+    }
     .tijd-input:focus { border-color: var(--accent); }
     .tijd-input::placeholder { color: var(--muted); font-size: 1rem; font-weight: 400; }
     .tijd-saved {

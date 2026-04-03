@@ -187,6 +187,9 @@
     .schifting-desc {
       font-size: .75rem; color: var(--muted); margin-bottom: .75rem; line-height: 1.4;
     }
+    #tijd::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+    }
  
     /* ── ERROR ── */
     .error {
