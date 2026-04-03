@@ -307,11 +307,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
     document.getElementById('modal-score').textContent = d.score + ' ptn';
     document.getElementById('modal-tijd').textContent = d.tijd || '—';
  
-    const datum = d.datum
-      ? new Date(d.datum).toLocaleString('nl-BE', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
-      : '—';
-    document.getElementById('modal-datum').textContent = datum;
- 
     const rennersEl = document.getElementById('modal-renners');
     rennersEl.innerHTML = (d.gekozen || []).map(naam => {
       const ptn = rennerPtn[naam] ?? 0;
