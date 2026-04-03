@@ -9,7 +9,7 @@
     </head>
     <body>
         <main>
-            <!-- Success screen (verborgen tot na submit) -->
+            <!-- Success -->
             <div class="success-screen" id="success-screen">
                 <div class="success-icon">🎉</div>
                 <h2>Inzending opgeslagen!</h2>
@@ -17,73 +17,83 @@
                 <button class="btn-new" onclick="resetForm()">Nieuwe inzending</button>
             </div>
             
-            <!-- Form -->
             <div id="form-wrap">
             
-                <div class="sec-label">Gegevens</div>
-            
-                <div class="field">
-                <label for="naam">Naam</label>
-                <input type="text" id="naam" placeholder="bv. Kobe Vannieuwenhuyze" autocomplete="name">
+                <!-- Jouw gegevens -->
+                <div class="sec-label">Jouw gegevens</div>
+                <div class="card">
+                <div class="field-row">
+                    <div class="field">
+                    <label for="naam">Naam</label>
+                    <input type="text" id="naam" placeholder="Jan Janssen" autocomplete="name">
+                    </div>
+                    <div class="field">
+                    <label for="gsm">GSM</label>
+                    <input type="tel" id="gsm" placeholder="0471 58 41 60" autocomplete="tel">
+                    </div>
+                </div>
                 </div>
             
-                <div class="field">
-                <label for="gsm">GSM</label>
-                <input type="tel" id="gsm" placeholder="bv. 0471 58 41 60" autocomplete="tel">
-                </div>
-            
+                <!-- Top 3 -->
                 <div class="sec-label">Top 3 renners</div>
-                <p style="font-size:.78rem;color:var(--muted);margin-bottom:.9rem;line-height:1.5;">
-                Volgorde maakt niet uit.
+                <div class="card">
+                <p style="font-size:.75rem;color:var(--muted);margin-bottom:.9rem;line-height:1.5;">
+                    Volgorde maakt niet uit. Typ een naam of kies uit de lijst.
                 </p>
-            
                 <div class="top3">
-                <div class="renner-row">
+            
+                    <div class="renner-row">
                     <div class="renner-badge r1">1</div>
-                    <div class="field" style="margin:0;flex:1">
-                    <label for="renner1">Renner 1</label>
-                    <div class="select-wrap">
-                        <select id="renner1"><option value="">— Renner selecteren —</option></select>
+                    <div class="field" style="margin:0">
+                        <label>Renner 1</label>
+                        <div class="ac-wrap" id="wrap1">
+                        <input class="ac-input" type="text" id="renner1" placeholder="Typ om te zoeken…" autocomplete="off">
+                        <div class="ac-dropdown" id="drop1"></div>
+                        </div>
                     </div>
                     </div>
-                </div>
             
-                <div class="renner-row">
+                    <div class="renner-row">
                     <div class="renner-badge r2">2</div>
-                    <div class="field" style="margin:0;flex:1">
-                    <label for="renner2">Renner 2</label>
-                    <div class="select-wrap">
-                        <select id="renner2"><option value="">— Renner selecteren —</option></select>
+                    <div class="field" style="margin:0">
+                        <label>Renner 2</label>
+                        <div class="ac-wrap" id="wrap2">
+                        <input class="ac-input" type="text" id="renner2" placeholder="Typ om te zoeken…" autocomplete="off">
+                        <div class="ac-dropdown" id="drop2"></div>
+                        </div>
                     </div>
                     </div>
-                </div>
             
-                <div class="renner-row">
+                    <div class="renner-row">
                     <div class="renner-badge r3">3</div>
-                    <div class="field" style="margin:0;flex:1">
-                    <label for="renner3">Renner 3</label>
-                    <div class="select-wrap">
-                        <select id="renner3"><option value="">— Renner selecteren —</option></select>
+                    <div class="field" style="margin:0">
+                        <label>Renner 3</label>
+                        <div class="ac-wrap" id="wrap3">
+                        <input class="ac-input" type="text" id="renner3" placeholder="Typ om te zoeken…" autocomplete="off">
+                        <div class="ac-dropdown" id="drop3"></div>
+                        </div>
                     </div>
                     </div>
+            
                 </div>
                 </div>
             
+                <!-- Schifting -->
                 <div class="sec-label">Schiftingsvraag</div>
-            
                 <div class="schifting-card">
                 <div class="schifting-title">⏱ Aankomsttijd winnaar</div>
-                <div class="schifting-desc">Schiftingsvraag bij gelijke stand: wie zit het dichtst bij de exacte aankomsttijd?</div>
+                <div class="schifting-desc">Bij gelijke stand: wie zit het dichtst bij de exacte aankomsttijd?</div>
                 <div class="field" style="margin:0">
-                    <label for="tijd">Voorspelde aankomsttijd (hh:mm:ss)</label>
+                    <label for="tijd">Voorspelde aankomsttijd</label>
                     <input type="time" id="tijd" step="1" placeholder="hh:mm:ss">
                 </div>
                 </div>
             
-                <div class="sec-label" style="margin-top:1.4rem;">Indienen</div>
-            
+                <!-- Indienen -->
+                <div class="sec-label">Indienen</div>
                 <p class="error" id="error-msg">⚠ Niet alles is ingevuld!</p>
                 <button id="toevoegen">Inzending indienen</button>
+            
             </div>
         </main>
         <footer class="border-top">

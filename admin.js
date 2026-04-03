@@ -309,8 +309,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
  
     const rennersEl = document.getElementById('modal-renners');
     rennersEl.innerHTML = (d.gekozen || []).map(naam => {
-      const ptn = rennerPtn[naam] ?? 0;
-      return `<span class="modal-renner${ptn > 0 ? ' hit' : ''}">${esc(naam)}${ptn > 0 ? ' +'+ptn : ''}</span>`;
+    const ptn = rennerPtn[naam] ?? 0;
+    return `<span class="modal-renner${ptn > 0 ? ' hit' : ''}">${esc(naam)}${ptn > 0 ? ' +'+ptn : ''}</span>`;
     }).join('');
  
     document.getElementById('modal-overlay').classList.add('show');
