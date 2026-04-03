@@ -213,8 +213,7 @@ import { getDatabase, ref, push, onValue, get } from "https://www.gstatic.com/fi
         } else {
           naam = esc(r.naam);
         }
-        const freqTxt = r.freq > 0 ? `<span class="freq">${r.freq}×</span>` : '';
-        return `<div class="ac-item" data-naam="${esc(r.naam)}">${naam}${freqTxt}</div>`;
+        return `<div class="ac-item" data-naam="${esc(r.naam)}">${naam}</div>`;
       }).join('');
  
       drop.querySelectorAll('.ac-item').forEach(item => {
