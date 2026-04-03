@@ -170,7 +170,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
       <td>
         <input class="cell-input" type="text"
           value="${esc(r.naam)}" placeholder="Naam renner"
-          data-id="${r.id}" data-col="naam">
+          data-id="${r.id}" data-col="naam" disabled>
       </td>
       <td class="pos-cell">
         <input class="pos-input" type="number" min="0" max="999"
