@@ -119,6 +119,7 @@
     .ac-item .freq {
       font-size: .7rem; color: var(--muted);
       font-family: 'Barlow Condensed', sans-serif;
+      margin-left: 2rem;
     }
     .ac-item .ac-match { color: var(--accent); }
     .ac-no-results {
