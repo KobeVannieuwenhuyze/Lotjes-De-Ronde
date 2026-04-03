@@ -20,7 +20,8 @@ import { getDatabase, ref, push, onValue, get } from "https://www.gstatic.com/fi
   const db  = getDatabase(app);
  
   // Staat
-  let alleRenners = []; // [{ naam, freq }] gesorteerd op populariteit
+  let alleRenners  = []; // [{ naam, freq }] gesorteerd op populariteit
+  let alleDeelnemers = []; // [{ naam, gsm }] uniek, uit inzendingen
   let gekozen = ['', '', '']; // geselecteerde geldige renners per slot
  
   // ── Firebase listeners ──
@@ -35,6 +36,7 @@ import { getDatabase, ref, push, onValue, get } from "https://www.gstatic.com/fi
   onValue(ref(db, 'inzendingen'), snap => {
     inzSnap = snap.val() || {};
     bouwRennerLijst();
+    bouwDeelnemerLijst();
   });
  
   function bouwRennerLijst() {
@@ -49,6 +51,73 @@ import { getDatabase, ref, push, onValue, get } from "https://www.gstatic.com/fi
       .map(r => ({ naam: r.naam, freq: freq[r.naam] || 0 }))
       .sort((a, b) => b.freq - a.freq || a.naam.localeCompare(b.naam));
   }
+ 
+  function bouwDeelnemerLijst() {
+    // Unieke deelnemers: meest recente gsm per naam
+    const map = {};
+    Object.values(inzSnap).forEach(inz => {
+      if (inz.naam) map[inz.naam.toLowerCase().trim()] = { naam: inz.naam, gsm: inz.gsm || '' };
+    });
+    alleDeelnemers = Object.values(map).sort((a, b) => a.naam.localeCompare(b.naam));
+  }
+ 
+  // ── Naam autocomplete ──
+  function setupNaamAC() {
+    const input = document.getElementById('naam');
+    const drop  = document.getElementById('drop-naam');
+ 
+    const renderNaamDrop = () => {
+      const zoek = input.value.trim().toLowerCase();
+      const gefilterd = alleDeelnemers.filter(d =>
+        d.naam.toLowerCase().includes(zoek)
+      );
+      if (!gefilterd.length) { drop.classList.remove('open'); return; }
+ 
+      drop.innerHTML = gefilterd.map(d => {
+        let naam;
+        if (zoek) {
+          const re = new RegExp(`(${zoek.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+          naam = d.naam.replace(re, '|||$1|||').split('|||').map((seg, i) =>
+            i % 2 === 1 ? `<span class="ac-match">${esc(seg)}</span>` : esc(seg)
+          ).join('');
+        } else {
+          naam = esc(d.naam);
+        }
+        const gsmTxt = d.gsm ? `<span class="freq">${esc(d.gsm)}</span>` : '';
+        return `<div class="ac-item" data-naam="${esc(d.naam)}" data-gsm="${esc(d.gsm)}">${naam}${gsmTxt}</div>`;
+      }).join('');
+ 
+      drop.querySelectorAll('.ac-item').forEach(item => {
+        item.addEventListener('mousedown', e => {
+          e.preventDefault();
+          input.value = item.dataset.naam;
+          if (item.dataset.gsm) document.getElementById('gsm').value = item.dataset.gsm;
+          drop.classList.remove('open');
+        });
+      });
+ 
+      drop.classList.add('open');
+    };
+ 
+    input.addEventListener('focus', renderNaamDrop);
+    input.addEventListener('input', renderNaamDrop);
+    input.addEventListener('blur', () => setTimeout(() => drop.classList.remove('open'), 150));
+    input.addEventListener('keydown', e => {
+      const items = drop.querySelectorAll('.ac-item');
+      const active = drop.querySelector('.ac-item.active');
+      let idx = Array.from(items).indexOf(active);
+      if (e.key === 'ArrowDown') { e.preventDefault(); idx = Math.min(idx+1, items.length-1); items.forEach(i=>i.classList.remove('active')); items[idx]?.classList.add('active'); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); idx = Math.max(idx-1,0); items.forEach(i=>i.classList.remove('active')); items[idx]?.classList.add('active'); }
+      else if (e.key === 'Enter') { e.preventDefault(); if (active) active.click(); else drop.classList.remove('open'); }
+      else if (e.key === 'Escape') drop.classList.remove('open');
+    });
+ 
+    // Sluit bij klik buiten
+    document.addEventListener('click', e => {
+      if (!input.contains(e.target) && !drop.contains(e.target)) drop.classList.remove('open');
+    });
+  }
+  setupNaamAC();
  
   // ── Autocomplete setup voor elk slot ──
   const slots = [1, 2, 3].map(n => {
