@@ -133,12 +133,18 @@ import { getDatabase, ref, push, onValue, get } from "https://www.gstatic.com/fi
       drop.innerHTML = `<div class="ac-no-results">${zoek.trim() ? '⚠ Geen renner gevonden' : 'Geen renners beschikbaar'}</div>`;
     } else {
       drop.innerHTML = gefilterd.map(r => {
-        // Highlight de getypte letters
+        // Highlight op originele naam, daarna pas escapen per segment
         const z = zoek.trim();
-        let naam = esc(r.naam);
+        let naam;
         if (z) {
           const re = new RegExp(`(${z.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
-          naam = esc(r.naam).replace(re, '<span class="ac-match">$1</span>');
+          naam = r.naam.replace(re, '|||$1|||').split('|||').map((seg, i) =>
+            i % 2 === 1
+              ? `<span class="ac-match">${esc(seg)}</span>`
+              : esc(seg)
+          ).join('');
+        } else {
+          naam = esc(r.naam);
         }
         const freqTxt = r.freq > 0 ? `<span class="freq">${r.freq}×</span>` : '';
         return `<div class="ac-item" data-naam="${esc(r.naam)}">${naam}${freqTxt}</div>`;
