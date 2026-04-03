@@ -127,14 +127,23 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
  
       const schifting = d.tijd ? esc(d.tijd) : '—';
  
-      return `<tr class="rang-row">
+      const tr = document.createElement('tr');
+      tr.className = 'rang-row';
+      tr.innerHTML = `
         <td class="rang-pos ${posClass}">${rang}</td>
         <td class="rang-naam">${esc(d.naam)}</td>
         <td class="rang-gsm">${esc(d.gsm || '—')}</td>
         <td class="rang-score">${d.score} ptn</td>
         <td class="rang-schifting">${schifting}</td>
-      </tr>`;
+      `;
+      tr.addEventListener('click', () => openModal(d, rang));
+      return tr.outerHTML;
     }).join('');
+ 
+    // Bind click events na innerHTML
+    Array.from(tbody.querySelectorAll('.rang-row')).forEach((tr, i) => {
+      tr.addEventListener('click', () => openModal(gesorteerd[i], i + 1));
+    });
   }
  
   // ── Render rennerstabel ──
@@ -254,6 +263,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
     try {
       await update(ref(db, `renners/${id}`), { punten });
       r.punten = punten;
+      renners.sort((a, b) => b.punten - a.punten || a.naam.localeCompare(b.naam));
       setStatus('✓ Opgeslagen', 'saved');
       renderTable(); renderRang();
     } catch(e) { setStatus('⚠ Fout bij opslaan', 'error'); ignoreNextSnapshot = false; }
@@ -285,3 +295,42 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
   function moveCursorToEnd(el) {
     if (el.setSelectionRange) { const l = el.value.length; el.setSelectionRange(l, l); }
   }
+ 
+  // ── Modal ──
+  function openModal(d, rang) {
+    const rennerPtn = {};
+    renners.forEach(r => { if (r.naam) rennerPtn[r.naam] = r.punten ?? 0; });
+ 
+    document.getElementById('modal-rang').textContent = `#${rang} — Inzending`;
+    document.getElementById('modal-naam').innerHTML = esc(d.naam);
+    document.getElementById('modal-gsm').textContent = d.gsm || '—';
+    document.getElementById('modal-score').textContent = d.score + ' ptn';
+    document.getElementById('modal-tijd').textContent = d.tijd || '—';
+ 
+    const datum = d.datum
+      ? new Date(d.datum).toLocaleString('nl-BE', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+      : '—';
+    document.getElementById('modal-datum').textContent = datum;
+ 
+    const rennersEl = document.getElementById('modal-renners');
+    rennersEl.innerHTML = (d.gekozen || []).map(naam => {
+      const ptn = rennerPtn[naam] ?? 0;
+      return `<span class="modal-renner${ptn > 0 ? ' hit' : ''}">${esc(naam)}${ptn > 0 ? ' +'+ptn : ''}</span>`;
+    }).join('');
+ 
+    document.getElementById('modal-overlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+ 
+  window.sluitModal = (e) => {
+    if (e && e.target !== document.getElementById('modal-overlay')) return;
+    document.getElementById('modal-overlay').classList.remove('show');
+    document.body.style.overflow = '';
+  };
+ 
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.getElementById('modal-overlay').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+  });
