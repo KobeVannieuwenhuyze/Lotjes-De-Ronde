@@ -25,7 +25,10 @@
                 <div class="field-row">
                     <div class="field">
                     <label for="naam">Naam</label>
-                    <input type="text" id="naam" placeholder="Jan Janssen" autocomplete="name">
+                    <div class="ac-wrap" id="wrap-naam">
+                        <input class="ac-input" type="text" id="naam" placeholder="Jan Janssen" autocomplete="off">
+                        <div class="ac-dropdown" id="drop-naam"></div>
+                    </div>
                     </div>
                     <div class="field">
                     <label for="gsm">GSM</label>
@@ -95,7 +98,7 @@
                 <button id="toevoegen">Inzending indienen</button>
             
             </div>
-        </main>
+            </main>
         <footer class="border-top">
             <p>© 2026 Kobe Vannieuwenhuyze - Scouts &amp; Gidsen Deerlijk</p>
         </footer>
