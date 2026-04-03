@@ -29,32 +29,6 @@
       pointer-events: none; z-index: 0;
     }
  
-    /* ── HERO ── */
-    .hero {
-      background: linear-gradient(135deg, #182a18 0%, #0f1923 65%);
-      border-bottom: 3px solid var(--accent);
-      padding: 1.8rem 1.5rem 1.4rem;
-      position: relative; overflow: hidden; z-index: 1;
-    }
-    .hero::after {
-      content: '🚴';
-      position: absolute; right: -8px; bottom: -18px;
-      font-size: 7rem; opacity: .08; transform: scaleX(-1);
-      pointer-events: none;
-    }
-    .hero-tag {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: .7rem; letter-spacing: .2em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: .3rem;
-    }
-    .hero h1 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: clamp(1.8rem, 7vw, 3rem);
-      font-weight: 800; line-height: 1;
-    }
-    .hero h1 em { color: var(--accent); font-style: normal; }
-    .hero-sub { font-size: .8rem; color: var(--muted); margin-top: .4rem; line-height: 1.5; }
- 
     /* ── MAIN ── */
     main {
       flex: 1; position: relative; z-index: 1;
@@ -139,7 +113,6 @@
       font-size: .9rem; cursor: pointer;
       border-bottom: 1px solid var(--border);
       transition: background .1s;
-      display: flex; align-items: center; justify-content: space-between;
     }
     .ac-item:last-child { border-bottom: none; }
     .ac-item:hover, .ac-item.active { background: rgba(245,200,0,.08); }
